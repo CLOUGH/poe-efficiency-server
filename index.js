@@ -1,14 +1,19 @@
 const express = require('express')
 const port = 3000
 const axios = require('axios')
-var cors = require('cors')
-var cookieParser = require('cookie-parser')
-var Promise = require("bluebird");
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+const Promise = require("bluebird");
 const bodyParser = require('body-parser');
 /**
  * Variables
  */
 const baseUrl = 'https://www.pathofexile.com'
+
+/**
+ * Interceptors
+ */
+
 
 /**
  * Middlewares
@@ -17,6 +22,28 @@ const app = express()
 app.use(cors())
 app.use(cookieParser())
 app.use(bodyParser());
+
+app.use((req, res, next) => {
+  if(req.headers.poesessid) {
+    const poesessid = req.headers.poesessid;
+    axios.interceptors.request.use((config) => {
+      config = {
+        ...config,
+        headers: {
+          ...config.headers,
+          Cookie: `${config.headers.Cookie?config.headers.Cookie:''}POESESSID=${poesessid};`
+        }
+      }
+    
+      return config;
+    }, (error) => {
+      return Promise.reject(error);
+    });
+  }
+  next();
+})
+
+
 
 /**
  * Helper functions
@@ -31,14 +58,11 @@ const getHeaders = (request) => {
 /** 
  * Api enpoints
 */
-app.get('/', (request, response) => {
+app.get('/', (req, res) => {
 
-  axios.get(`${baseUrl}/character-window/get-characters?accountName=cloughax`)
-    .then(data => {
-      response.send(data.data);
-    }).catch(error => {
-      response.send(error.response.data);
-    });
+  res.json({
+    message: 'Welcome to path of efficiency api'
+  });
 
 })
 app.post('/get-item-value', (req, res) => {
@@ -58,10 +82,7 @@ app.post('/get-item-value', (req, res) => {
   }
   axios.post(
     `${baseUrl}/api/trade/search/Synthesis`,
-    itemSearchQuery,
-    {
-      headers: getHeaders(req)
-    }
+    itemSearchQuery
   ).then(itemSearchQueryResponse => {
     if (itemSearchQueryResponse.data && itemSearchQueryResponse.data.result.length > 0) {
       return axios.get(
@@ -81,13 +102,10 @@ app.post('/get-item-value', (req, res) => {
 
 // Get items
 app.get('/get-items', (req, res) => {
-  const headers = getHeaders(req);
   const { accountName, character } = req.query;
 
   axios.get(
-    `${baseUrl}/character-window/get-items`,
-    {
-      headers,
+    `${baseUrl}/character-window/get-items`,{
       params: {
         accountName,
         character
@@ -103,25 +121,24 @@ app.get('/get-items', (req, res) => {
 
 // get characters
 app.get('/get-characters', (request, response) => {
-  const headers = getHeaders(request);
   const { character } = request.query;
-
   const params = {};
-
   if (character) {
     params.character = character;
   }
 
   axios.get(
-    `${baseUrl}/character-window/get-characters`,
-    {
-      headers,
+    `${baseUrl}/character-window/get-characters`,{
       params
     }
   ).then(data => {
     response.send(data.data);
   }).catch(error => {
-    response.status(error.response.status).send(error.response.data);
+    if(!error.response){
+       response.status(500).send(error);
+    } else{
+      response.status(error.response.status).send(error.response.data);
+    }
   });
 })
 
