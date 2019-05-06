@@ -1,6 +1,5 @@
 const express = require('express')
 const axios = require('axios')
-const port = 3000
 
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -8,6 +7,15 @@ const Promise = require("bluebird");
 const bodyParser = require('body-parser');
 const { setupCache } = require('axios-cache-adapter');
 const moment = require('moment');
+
+
+/**
+ * Config
+ */
+// Constants
+const PORT = 8080;
+const HOST = '0.0.0.0';
+
 
 let poesessid = '';
 /**
@@ -334,7 +342,7 @@ app.get('/poe-static-data', (req, res) => {
   });
 })
 
-app.listen(port, (err) => {
+app.listen(PORT, HOST, (err) => {
   if (err) {
     return console.log('something bad happened', err)
   }
