@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: poe-backend
+  labels:
+    app: poe-backend
+spec:
+  selector:
+    matchLabels:
+      app: poe-backend
+      tier: web
+  template:
+    metadata:
+      labels:
+        app: poe-backend
+        tier: web
+        sha: ${SHORT_SHA}
+    spec:
+      containers:
+      - name: poe-backend
+        image: gcr.io/website-227817/poe-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: poe-backend
+  labels:
+    app: poe-backend
+spec:
+  type: NodePort
+  selector:
+    app: poe-backend
+    tier: web
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: poe-backend
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: poe-ip
+  labels:
+    app: poe-backend
+spec:
+  - host: api.pathofefficiency.com
+    http: 
+      paths:
+      - backend:
+          serviceName: poe-backend
+          servicePort: 8080
