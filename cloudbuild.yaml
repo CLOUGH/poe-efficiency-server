@@ -1,16 +1,4 @@
-# Install Dependencies
-- name: 'gcr.io/cloud-builders/npm'
-  id: 'Install Project Dependencies'
-  args: 
-    - 'install'
-  
-# This step run the unit tests
-# - name: 'gcr.io/cloud-builders/npm'
-#   id: 'Test'
-#   args: 
-#     - 'run'
-#     - 'test-phantomjs'
-
+steps:
   # This step builds the container image.
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build'
