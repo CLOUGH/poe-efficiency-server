@@ -47,6 +47,7 @@ metadata:
   labels:
     app: poe-backend
 spec:
+  rules:
   - host: api.pathofefficiency.com
     http: 
       paths:
