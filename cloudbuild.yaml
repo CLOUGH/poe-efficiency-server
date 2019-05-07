@@ -1,16 +1,42 @@
-# This step builds the container image.
+steps:
+  #install angular
+- name: 'gcr.io/cloud-builders/npm'
+  id: 'Install Angular'
+  args: 
+    - 'install'
+    - '-g'
+    - '@angular/cli'
+
+# Install Dependencies
+- name: 'gcr.io/cloud-builders/npm'
+  id: 'Install Project Dependencies'
+  args: 
+    - 'install'
+  
+# This step run the unit tests
+# - name: 'gcr.io/cloud-builders/npm'
+#   id: 'Test'
+#   args: 
+#     - 'run'
+#     - 'test-phantomjs'
+
+  # This step builds the container image.
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build'
-  args: ['build', '-t','gcr.io/$PROJECT_ID/poe-backend:latest','.']
+  args:
+    - 'build'
+    - '-t'
+    - 'gcr.io/$PROJECT_ID/poe-frontend:latest'
+    - '.'
 
-# This step pushes the image to container registry
-# The PROJECT_ID and SHORT_SHA variables are automatically
-# replaced by Cloud Build
+  # This step pushes the image to container registry
+  # The PROJECT_ID and SHORT_SHA variables are automatically
+  # replaced by Cloud Build
 - name: 'gcr.io/cloud-builders/docker'
   id: Push
   args: 
     - 'push'
-    - 'gcr.io/$PROJECT_ID/poe-backend:latest'
+    - 'gcr.io/$PROJECT_ID/poe-frontend:latest'
   
 # generate new deployment yaml based on $SHORT_SHA
 - name: 'gcr.io/$PROJECT_ID/envsubst'
