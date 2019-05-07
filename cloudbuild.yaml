@@ -1,0 +1,38 @@
+  # This step builds the container image.
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build'
+  args:
+    - 'build'
+    - '-t'
+    - 'gcr.io/$PROJECT_ID/poe-backend:latest'
+    - '.'
+
+  # This step pushes the image to container registry
+  # The PROJECT_ID and SHORT_SHA variables are automatically
+  # replaced by Cloud Build
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push
+  args: 
+    - 'push'
+    - 'gcr.io/$PROJECT_ID/poe-backend:latest'
+  
+# generate new deployment yaml based on $SHORT_SHA
+- name: 'gcr.io/$PROJECT_ID/envsubst'
+  id: 'Substituting Environment Values'
+  args:
+    - 'deployment.yaml'
+    - 'deployment.yaml'
+  env:
+    - 'SHORT_SHA=$SHORT_SHA'
+
+# Deploy application on kubernetes
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: 'Deploy on Kubernetes'
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=website-cluster'
+    - 'SHORT_SHA=$SHORT_SHA'
+  args:
+    - 'apply'
+    - '-f'
+    - 'deployment.yaml'
