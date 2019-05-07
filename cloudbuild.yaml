@@ -1,12 +1,3 @@
-steps:
-  #install angular
-- name: 'gcr.io/cloud-builders/npm'
-  id: 'Install Angular'
-  args: 
-    - 'install'
-    - '-g'
-    - '@angular/cli'
-
 # Install Dependencies
 - name: 'gcr.io/cloud-builders/npm'
   id: 'Install Project Dependencies'
@@ -26,7 +17,7 @@ steps:
   args:
     - 'build'
     - '-t'
-    - 'gcr.io/$PROJECT_ID/poe-frontend:latest'
+    - 'gcr.io/$PROJECT_ID/poe-backend:latest'
     - '.'
 
   # This step pushes the image to container registry
@@ -36,7 +27,7 @@ steps:
   id: Push
   args: 
     - 'push'
-    - 'gcr.io/$PROJECT_ID/poe-frontend:latest'
+    - 'gcr.io/$PROJECT_ID/poe-backend:latest'
   
 # generate new deployment yaml based on $SHORT_SHA
 - name: 'gcr.io/$PROJECT_ID/envsubst'
