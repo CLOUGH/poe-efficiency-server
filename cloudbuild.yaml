@@ -1,9 +1,3 @@
-# Install Dependencies
-- name: 'gcr.io/cloud-builders/npm'
-  id: 'Install Project Dependencies'
-  args: 
-    - 'install'
-    
 # This step builds the container image.
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build'
